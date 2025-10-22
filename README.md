@@ -29,3 +29,5 @@ The web interface files need to be minified and processed before being embedded 
    invoke build
    ```
    This processes files from `src_www/` and outputs minified versions to `data/www/`, which will be embedded into the ESP32 firmware.
+
+   To see all available tasks, run `invoke --list`.

@@ -90,5 +90,5 @@ def html(ctx):
 
 @task(pre=[clean, css_min, js_min, images, html])
 def build(ctx):
-    """ Build task """
+    """ Run all tasks: clean, minify CSS/JS, copy images and HTML """
     print("Build complete!")
