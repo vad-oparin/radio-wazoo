@@ -5,24 +5,51 @@ import re
 import rcssmin
 import rjsmin
 
+from colorama import init, Fore #, Back, Style
+
+# import subprocess
 
 SRC_DIR = Path("src_www")
 DEST_DIR = Path("data/www")
+
+init(autoreset=True)
+
+
+def log_info(msg):
+    print(f"{Fore.CYAN}[INFO] {msg}")
+
+
+def log_warn(msg):
+    print(f"{Fore.YELLOW}[WARN] {msg}")
+
+
+def log_error(msg):
+    print(f"{Fore.RED}[ERROR] {msg}")
+
+
+def log_step(msg):
+    print(
+        f"\n{Fore.GREEN}===================================================\n"
+        f"  {msg}\n"
+        f"===================================================\n"
+    )
 
 
 @task
 def clean(ctx):
     """ Clean build folder """
+    log_step("Cleaning build folder")
     if DEST_DIR.exists():
         shutil.rmtree(DEST_DIR)
-        print(f"Cleaned {DEST_DIR}")
+        log_info(f"Cleaned {DEST_DIR}")
     else:
-        print(f"{DEST_DIR} does not exist")
+        log_info(f"{DEST_DIR} does not exist")
 
 
 @task
 def css_min(ctx):
     """ Minify CSS and add .min suffix """
+    log_step("Minifying CSS files")
     css_files = SRC_DIR.glob("**/*.css")
 
     for css_file in css_files:
@@ -34,12 +61,13 @@ def css_min(ctx):
         dest_file.parent.mkdir(parents=True, exist_ok=True)
 
         dest_file.write_text(minified, encoding="utf-8")
-        print(f"Minified {css_file} -> {dest_file}")
+        log_info(f"Minified {css_file} -> {dest_file}")
 
 
 @task
 def js_min(ctx):
     """ Minify JS and add .min suffix """
+    log_step("Minifying JS files")
     js_files = SRC_DIR.glob("**/*.js")
 
     for js_file in js_files:
@@ -51,12 +79,13 @@ def js_min(ctx):
         dest_file.parent.mkdir(parents=True, exist_ok=True)
 
         dest_file.write_text(minified, encoding="utf-8")
-        print(f"Minified {js_file} -> {dest_file}")
+        log_info(f"Minified {js_file} -> {dest_file}")
 
 
 @task
 def images(ctx):
     """ Copy images """
+    log_step("Copying images")
     image_extensions = {".svg", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".webp"}
 
     for src_file in SRC_DIR.rglob("*"):
@@ -66,12 +95,13 @@ def images(ctx):
             dest_file.parent.mkdir(parents=True, exist_ok=True)
 
             shutil.copy2(src_file, dest_file)
-            print(f"Copied {src_file} -> {dest_file}")
+            log_info(f"Copied {src_file} -> {dest_file}")
 
 
 @task
 def html(ctx):
     """ Copy HTML files and update references to .min files """
+    log_step("Processing HTML files")
     html_files = SRC_DIR.glob("**/*.html")
 
     for html_file in html_files:
@@ -85,10 +115,10 @@ def html(ctx):
         dest_file.parent.mkdir(parents=True, exist_ok=True)
 
         dest_file.write_text(html_content, encoding="utf-8")
-        print(f"Processed {html_file} -> {dest_file}")
+        log_info(f"Processed {html_file} -> {dest_file}")
 
 
 @task(pre=[clean, css_min, js_min, images, html])
 def build(ctx):
     """ Run all tasks: clean, minify CSS/JS, copy images and HTML """
-    print("Build complete!")
+    log_step("Build complete!")
