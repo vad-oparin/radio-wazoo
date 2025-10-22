@@ -1,0 +1,62 @@
+# Build artifacts
+build/
+build_*_*/
+
+# ESP-IDF configuration
+sdkconfig
+sdkconfig.old
+.config
+
+# Dependency management
+dependencies.lock
+managed_components/
+
+# IDE - CLion/IntelliJ
+cmake-build-*/
+
+# IDE - Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Editor files
+*.swp
+*.swo
+*~
+.#*
+\#*#
+
+# Python
+*.pyc
+__pycache__/
+.mypy_cache/
+.venv/
+
+# C/C++ build artifacts
+*.o
+*.a
+*.so
+*.gcda
+*.gcno
+coverage.info
+coverage_report/
+
+# Testing
+TEST_LOGS/
+pytest_embedded_log/
+XUNIT_RESULT*.xml
+
+# Tags and indexes
+GTAGS
+GRTAGS
+GPATH
+.clangd
+
+# OS
+.DS_Store
+.cache/
+
+# Documentation build
+docs/_build/
+
+# Temporary files
+.tmp/

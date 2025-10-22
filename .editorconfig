@@ -1,0 +1,57 @@
+# EditorConfig for ESP-IDF projects
+# https://editorconfig.org
+
+root = true
+
+# All files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# C/C++ source files
+[*.{c,h,cpp,hpp,cc,cxx}]
+indent_style = space
+indent_size = 4
+max_line_length = 120
+
+# CMake files
+[{CMakeLists.txt,*.cmake}]
+indent_style = space
+indent_size = 4
+
+# Python files (for ESP-IDF build scripts)
+[*.py]
+indent_style = space
+indent_size = 4
+max_line_length = 120
+
+# Makefiles
+[{Makefile,*.mk}]
+indent_style = tab
+
+# JSON files
+[*.json]
+indent_style = space
+indent_size = 2
+
+# YAML files
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Kconfig files
+[Kconfig*]
+indent_style = space
+indent_size = 4
+
+# Linker scripts
+[*.ld]
+indent_style = space
+indent_size = 4
