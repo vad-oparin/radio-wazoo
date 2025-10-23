@@ -75,7 +75,7 @@ The web interface files need to be minified and processed before being flashed t
    ```bash
    pip install -r requirements.txt
    ```
-   This installs Invoke (task runner), esptool (flashing), rcssmin (CSS minifier), rjsmin (JavaScript minifier), and pyserial (device communication).
+   This installs Invoke (task runner), rcssmin (CSS minifier), rjsmin (JavaScript minifier), and pyserial (device communication). The esptool for flashing is provided by ESP-IDF.
 
 4. **Build the web assets:**
    ```bash

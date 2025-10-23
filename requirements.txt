@@ -1,5 +1,4 @@
 colorama==0.4.6
-esptool==4.7.0
 invoke==2.2.1
 pyserial==3.5
 rcssmin==1.2.2
