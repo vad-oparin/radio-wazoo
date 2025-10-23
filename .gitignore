@@ -7,6 +7,9 @@ sdkconfig
 sdkconfig.old
 .config
 
+# Partition tables - project-specific
+partitions.csv
+
 # Dependency management
 dependencies.lock
 managed_components/

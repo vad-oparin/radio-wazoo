@@ -1,0 +1,7 @@
+# Partition table for 16MB flash
+# Maximum storage capacity - no OTA support
+# Name,      Type, SubType,  Offset,   Size,    Flags
+nvs,         data, nvs,      0x9000,   32K,
+phy_init,    data, phy,      0x11000,  4K,
+factory,     app,  factory,  0x20000,  3M,
+storage,     data, spiffs,   ,         13276K,
