@@ -1,0 +1,18 @@
+# Universal ESP-IDF configuration defaults
+# These settings are chip-agnostic and work across all ESP-IDF supported targets
+
+# Logging
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
+
+# FreeRTOS
+CONFIG_FREERTOS_HZ=1000
+
+# Task Watchdog
+CONFIG_ESP_TASK_WDT_TIMEOUT_S=15
+
+# Common settings
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+
+# Partition Table
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"

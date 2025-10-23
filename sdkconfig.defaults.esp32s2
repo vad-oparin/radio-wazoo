@@ -1,0 +1,6 @@
+# ESP32-S2 specific configuration
+# This file is automatically merged with sdkconfig.defaults when targeting ESP32-S2
+
+# USB CDC console (ESP32-S2 has native USB)
+CONFIG_ESP_CONSOLE_USB_CDC=y
+CONFIG_ESP_CONSOLE_SECONDARY_NONE=y
