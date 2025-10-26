@@ -24,7 +24,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
     }
 }
 
-esp_err_t access_point(void) {
+esp_err_t access_point_init(void) {
     // Initialize network interface (only once per application lifecycle)
     if (!netif_initialized) {
         ESP_ERROR_CHECK(esp_netif_init());

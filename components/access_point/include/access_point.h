@@ -12,7 +12,7 @@ extern "C" {
  *
  * @return esp_err_t ESP_OK on success
  */
-esp_err_t access_point(void);
+esp_err_t access_point_init(void);
 
 #ifdef __cplusplus
 }

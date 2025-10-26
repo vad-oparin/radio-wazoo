@@ -16,5 +16,5 @@ void app_main(void) {
     ESP_ERROR_CHECK(nvs_init());
 
     ESP_LOGI(TAG, "Starting WiFi Access Point...");
-    ESP_ERROR_CHECK(access_point());
+    ESP_ERROR_CHECK(access_point_init());
 }
