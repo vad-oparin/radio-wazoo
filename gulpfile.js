@@ -15,6 +15,14 @@ const paths = {
     js: {
         src: 'src/www/**/*.js',
         dest: 'data/www'
+    },
+    html: {
+        src: 'src/www/**/*.html',
+        dest: 'data/www'
+    },
+    images: {
+        src: 'src/www/**/*.{svg,png,jpg,jpeg,gif,ico,webp}',
+        dest: 'data/www'
     }
 };
 
@@ -46,10 +54,24 @@ async function js() {
     });
 }
 
-const build = gulp.series(clean, gulp.parallel(scss, js));
+function html() {
+    return gulp.src(paths.html.src)
+        .pipe(replace(/\.css(?=")/g, '.min.css'))
+        .pipe(replace(/\.js(?=")/g, '.min.js'))
+        .pipe(gulp.dest(paths.html.dest));
+}
+
+function images() {
+    return gulp.src(paths.images.src)
+        .pipe(gulp.dest(paths.images.dest));
+}
+
+const build = gulp.series(clean, gulp.parallel(scss, js, html, images));
 
 exports.clean = clean;
 exports.scss = scss;
 exports.js = js;
+exports.html = html;
+exports.images = images;
 exports.build = build;
 exports.default = build;
