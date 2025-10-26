@@ -16,6 +16,7 @@ FORCE_FS_FLASH=false
 DATA_DIR="data"
 PARTITION_NAME="storage"
 FS_IMAGE="build/littlefs.bin"
+FS_FLASH_MARKER="build/.littlefs_flashed"
 SSID="RadioWazooAP"
 IP="192.168.4.1"
 
@@ -139,20 +140,27 @@ flash_filesystem() {
 
   log_info "Data directory: $DATA_DIR"
 
-  # Get partition offset and size from CSV
+  # Get partition offset and size from built partition table
   log_info "Reading partition information for '$PARTITION_NAME'..."
 
-  # Parse partition table CSV (format: name, type, subtype, offset, size, flags)
-  PARTITION_LINE=$(grep "^$PARTITION_NAME," partitions.csv)
-
-  if [ -z "$PARTITION_LINE" ]; then
-    log_error "Could not find partition '$PARTITION_NAME' in partitions.csv"
+  # Check if partition table binary exists
+  if [ ! -f "build/partition_table/partition-table.bin" ]; then
+    log_error "Partition table binary not found. Run 'idf.py build' first."
     exit 1
   fi
 
-  # Extract offset and size (4th and 5th columns)
-  OFFSET=$(echo "$PARTITION_LINE" | awk -F',' '{gsub(/[ \t]+/, "", $4); print $4}')
-  SIZE_STR=$(echo "$PARTITION_LINE" | awk -F',' '{gsub(/[ \t]+/, "", $5); print $5}')
+  # Use gen_esp32part.py to parse the binary partition table
+  PARTITION_INFO=$(python "$IDF_PATH/components/partition_table/gen_esp32part.py" build/partition_table/partition-table.bin | grep "^$PARTITION_NAME")
+
+  if [ -z "$PARTITION_INFO" ]; then
+    log_error "Could not find partition '$PARTITION_NAME' in partition table"
+    exit 1
+  fi
+
+  # Extract offset and size from gen_esp32part output
+  # Format: name,type,subtype,offset,size,flags
+  OFFSET=$(echo "$PARTITION_INFO" | awk -F',' '{print $4}')
+  SIZE_STR=$(echo "$PARTITION_INFO" | awk -F',' '{print $5}')
 
   # Convert size (handles K, M suffixes)
   if [[ $SIZE_STR =~ ([0-9]+)M ]]; then
@@ -170,43 +178,41 @@ flash_filesystem() {
 
   # Check if mklittlefs is available
   if command -v mklittlefs &>/dev/null; then
-    # Check if filesystem image needs to be rebuilt
-    NEEDS_REBUILD=false
+    # Check if filesystem needs to be rebuilt and flashed
+    NEEDS_FLASH=false
 
     if [ "$FORCE_FS_FLASH" = true ]; then
       log_info "Force filesystem flash requested"
-      NEEDS_REBUILD=true
-    elif [ ! -f "$FS_IMAGE" ]; then
-      log_info "Filesystem image not found, will create new image"
-      NEEDS_REBUILD=true
+      NEEDS_FLASH=true
+    elif [ ! -f "$FS_FLASH_MARKER" ]; then
+      log_info "No flash marker found, filesystem needs to be flashed"
+      NEEDS_FLASH=true
     else
-      # Check if any source file is newer than the filesystem image
-      log_info "Checking if source files are newer than filesystem image..."
+      # Check if any source file is newer than the flash marker
+      log_info "Checking if source files changed since last successful flash..."
 
       while IFS= read -r -d '' file; do
-        if [ "$file" -nt "$FS_IMAGE" ]; then
+        if [ "$file" -nt "$FS_FLASH_MARKER" ]; then
           log_info "File modified: $(basename "$file")"
-          NEEDS_REBUILD=true
+          NEEDS_FLASH=true
           break
         fi
       done < <(find "$DATA_DIR" -type f -print0)
 
-      if [ "$NEEDS_REBUILD" = false ]; then
-        log_info "Filesystem image is up-to-date, skipping rebuild"
+      if [ "$NEEDS_FLASH" = false ]; then
+        log_info "Filesystem already flashed and up-to-date, skipping"
       fi
     fi
 
     # Only rebuild and flash if needed
-    if [ "$NEEDS_REBUILD" = true ]; then
+    if [ "$NEEDS_FLASH" = true ]; then
       log_info "Creating LittleFS image with mklittlefs..."
       BLOCK_SIZE=4096
       PAGE_SIZE=256
 
-      # mklittlefs copies directory contents, but we need to preserve /www/ structure
-      # Create temporary directory with proper structure
+      # mklittlefs copies directory contents directly
       TMP_FS_DIR=$(mktemp -d)
-      mkdir -p "$TMP_FS_DIR/www"
-      cp -r "$DATA_DIR"/* "$TMP_FS_DIR/www/"
+      cp -r "$DATA_DIR"/* "$TMP_FS_DIR/"
 
       mklittlefs -c "$TMP_FS_DIR" -b $BLOCK_SIZE -p $PAGE_SIZE -s "$SIZE" "$FS_IMAGE"
 
@@ -223,12 +229,12 @@ flash_filesystem() {
 
       if ! python -m esptool --chip "$CHIP" -p "$PORT" -b "$BAUD" write_flash "$OFFSET" "$FS_IMAGE"; then
         log_error "Filesystem flash failed"
+        rm -f "$FS_FLASH_MARKER"
         exit 1
       fi
 
+      touch "$FS_FLASH_MARKER"
       log_info "Filesystem flashed successfully"
-    else
-      log_info "Skipping filesystem flash (image is up-to-date)"
     fi
   else
     log_warn "mklittlefs tool not found - skipping filesystem flash"
@@ -287,6 +293,9 @@ build)
   flash_firmware
   flash_filesystem
   reset_device
+  verify_boot
+  ;;
+verify)
   verify_boot
   ;;
 help | --help | -h | "")

@@ -21,7 +21,7 @@ extern "C" {
 #define SET_AP_IP(ip_info) do { \
 IP4_ADDR(&(ip_info).ip,       AP_IP_1, AP_IP_2, AP_IP_3, AP_IP_4); \
 IP4_ADDR(&(ip_info).gw,       AP_IP_1, AP_IP_2, AP_IP_3, AP_IP_4); \
-IP4_ADDR(&(ip_info).netmask,  255,    255,    255,    0); \
+IP4_ADDR(&(ip_info).netmask,  255,     255,     255,     0); \
 } while(0)
 
 // Filesystem Configuration

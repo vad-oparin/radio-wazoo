@@ -76,10 +76,12 @@ esp_err_t access_point_init(void) {
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
 
+    ESP_LOGI(TAG, "==================================");
     ESP_LOGI(TAG, "WiFi AP started");
     ESP_LOGI(TAG, "SSID: %s", WIFI_AP_SSID);
-    ESP_LOGI(TAG, "Password: %s", strlen(WIFI_AP_PASSWORD) > 0 ? "********" : "(open)");
+    ESP_LOGI(TAG, "Password: %s", strlen(WIFI_AP_PASSWORD) > 0 ? WIFI_AP_PASSWORD : "(open)");
     ESP_LOGI(TAG, "IP Address: " IPSTR, IP2STR(&ip_info.ip));
+    ESP_LOGI(TAG, "==================================");
 
     return ESP_OK;
 }

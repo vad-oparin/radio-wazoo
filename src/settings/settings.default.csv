@@ -1,0 +1,4 @@
+# Default application settings
+# Scope, Name,     Type,   Value
+Network, SSID,     string,
+Network, Password, string,
