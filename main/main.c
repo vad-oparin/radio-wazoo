@@ -1,3 +1,4 @@
+#include "access_point.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_system.h"
@@ -13,4 +14,7 @@ void app_main(void) {
 
     ESP_LOGI(TAG, "Initializing non-volatile storage...");
     ESP_ERROR_CHECK(nvs_init());
+
+    ESP_LOGI(TAG, "Starting WiFi Access Point...");
+    ESP_ERROR_CHECK(access_point());
 }
