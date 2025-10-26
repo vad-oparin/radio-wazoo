@@ -2,7 +2,11 @@
 #include "esp_littlefs.h"
 #include "esp_log.h"
 #include "radio_wazoo_config.h"
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 static const char *const TAG = "FILESYSTEM";
 
@@ -57,5 +61,86 @@ esp_err_t filesystem_deinit(void) {
         return ret;
     }
     ESP_LOGI(TAG, "LittleFS unmounted successfully");
+    return ESP_OK;
+}
+
+esp_err_t filesystem_read_file(const char *path, char *buffer, size_t buffer_size, size_t *bytes_read) {
+    if (path == NULL || buffer == NULL || buffer_size == 0) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    FILE *file = fopen(path, "r");
+    if (file == NULL) {
+        ESP_LOGE(TAG, "Failed to open file '%s' for reading: %s", path, strerror(errno));
+        return ESP_ERR_NOT_FOUND;
+    }
+
+    size_t read_count = fread(buffer, 1, buffer_size - 1, file);
+    buffer[read_count] = '\0';
+
+    if (ferror(file)) {
+        ESP_LOGE(TAG, "Error reading file '%s'", path);
+        fclose(file);
+        return ESP_FAIL;
+    }
+
+    fclose(file);
+
+    if (bytes_read != NULL) {
+        *bytes_read = read_count;
+    }
+
+    ESP_LOGD(TAG, "Read %d bytes from '%s'", read_count, path);
+    return ESP_OK;
+}
+
+esp_err_t filesystem_write_file(const char *path, const char *data, size_t data_size) {
+    if (path == NULL || data == NULL) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    FILE *file = fopen(path, "w");
+    if (file == NULL) {
+        ESP_LOGE(TAG, "Failed to open file '%s' for writing: %s", path, strerror(errno));
+        return ESP_FAIL;
+    }
+
+    size_t written = fwrite(data, 1, data_size, file);
+    if (written != data_size) {
+        ESP_LOGE(TAG, "Failed to write all data to '%s' (wrote %d of %d bytes)", path, written, data_size);
+        fclose(file);
+        return ESP_FAIL;
+    }
+
+    fclose(file);
+
+    ESP_LOGD(TAG, "Wrote %d bytes to '%s'", data_size, path);
+    return ESP_OK;
+}
+
+bool filesystem_file_exists(const char *path) {
+    if (path == NULL) {
+        return false;
+    }
+
+    struct stat st;
+    return (stat(path, &st) == 0);
+}
+
+esp_err_t filesystem_delete_file(const char *path) {
+    if (path == NULL) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    if (unlink(path) != 0) {
+        if (errno == ENOENT) {
+            ESP_LOGD(TAG, "File '%s' does not exist", path);
+            return ESP_ERR_NOT_FOUND;
+        }
+        ESP_LOGE(TAG, "Failed to delete file '%s': %s", path, strerror(errno));
+        return ESP_FAIL;
+    }
+
+    ESP_LOGD(TAG, "Deleted file '%s'", path);
     return ESP_OK;
 }

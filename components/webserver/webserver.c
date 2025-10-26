@@ -1,8 +1,30 @@
 #include "webserver.h"
 #include "esp_http_server.h"
 #include "esp_log.h"
+#include "filesystem.h"
+#include <string.h>
 
 static const char *const TAG = "WEBSERVER";
+
+#define HTML_BUFFER_SIZE 4096
+
+static esp_err_t root_handler(httpd_req_t *req) {
+    char html_buffer[HTML_BUFFER_SIZE];
+    size_t bytes_read = 0;
+
+    esp_err_t ret = filesystem_read_file("/littlefs/www/index.html", html_buffer, sizeof(html_buffer), &bytes_read);
+
+    if (ret != ESP_OK) {
+        const char *error_msg = "<html><body><h1>404 Not Found</h1><p>index.html not found on filesystem</p></body></html>";
+        httpd_resp_send_404(req);
+        httpd_resp_send(req, error_msg, HTTPD_RESP_USE_STRLEN);
+        return ESP_OK;
+    }
+
+    httpd_resp_set_type(req, "text/html");
+    httpd_resp_send(req, html_buffer, bytes_read);
+    return ESP_OK;
+}
 
 httpd_handle_t webserver_init(void) {
     httpd_handle_t server = NULL;
@@ -13,6 +35,11 @@ httpd_handle_t webserver_init(void) {
 
     if (httpd_start(&server, &config) == ESP_OK) {
         ESP_LOGI(TAG, "Web server started successfully");
+
+        httpd_uri_t root_uri = {.uri = "/", .method = HTTP_GET, .handler = root_handler, .user_ctx = NULL};
+        httpd_register_uri_handler(server, &root_uri);
+
+        ESP_LOGI(TAG, "Registered URI handler: GET /");
         ESP_LOGI(TAG, "Open http://192.168.4.1 in your browser");
     } else {
         ESP_LOGE(TAG, "Failed to start web server");

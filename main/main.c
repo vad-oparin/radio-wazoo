@@ -3,6 +3,7 @@
 #include "esp_log.h"
 #include "esp_system.h"
 #include "nvs.h"
+#include "webserver.h"
 #include <inttypes.h>
 #include <stdio.h>
 
@@ -17,4 +18,7 @@ void app_main(void) {
 
     ESP_LOGI(TAG, "Starting WiFi Access Point...");
     ESP_ERROR_CHECK(access_point_init());
+
+    ESP_LOGI(TAG, "Starting web server...");
+    webserver_init();
 }
