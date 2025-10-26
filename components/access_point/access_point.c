@@ -9,6 +9,7 @@
 
 static const char *const TAG = "ACCESS_POINT";
 static bool netif_initialized = false;
+static esp_netif_t *ap_netif = NULL;
 
 static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
     if (event_id == WIFI_EVENT_AP_STACONNECTED) {
@@ -33,7 +34,7 @@ esp_err_t access_point_init(void) {
     }
 
     // Create default WiFi AP
-    esp_netif_t *ap_netif = esp_netif_create_default_wifi_ap();
+    ap_netif = esp_netif_create_default_wifi_ap();
 
     // Configure IP address (As it set in config)
     esp_netif_ip_info_t ip_info;
@@ -79,6 +80,43 @@ esp_err_t access_point_init(void) {
     ESP_LOGI(TAG, "SSID: %s", WIFI_AP_SSID);
     ESP_LOGI(TAG, "Password: %s", strlen(WIFI_AP_PASSWORD) > 0 ? "********" : "(open)");
     ESP_LOGI(TAG, "IP Address: " IPSTR, IP2STR(&ip_info.ip));
+
+    return ESP_OK;
+}
+
+esp_err_t access_point_deinit(void) {
+    esp_err_t ret;
+
+    ESP_LOGI(TAG, "Stopping WiFi Access Point...");
+
+    // Stop WiFi
+    ret = esp_wifi_stop();
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to stop WiFi: %s", esp_err_to_name(ret));
+        return ret;
+    }
+
+    // Deinitialize WiFi
+    ret = esp_wifi_deinit();
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to deinit WiFi: %s", esp_err_to_name(ret));
+        return ret;
+    }
+
+    // Unregister event handler
+    ret = esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to unregister event handler: %s", esp_err_to_name(ret));
+        return ret;
+    }
+
+    // Destroy network interface
+    if (ap_netif != NULL) {
+        esp_netif_destroy(ap_netif);
+        ap_netif = NULL;
+    }
+
+    ESP_LOGI(TAG, "WiFi AP stopped and deinitialized");
 
     return ESP_OK;
 }
