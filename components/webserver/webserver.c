@@ -1,6 +1,7 @@
 #include "webserver.h"
 #include "esp_http_server.h"
 #include "esp_log.h"
+#include "esp_netif.h"
 #include "filesystem.h"
 #include <string.h>
 
@@ -40,7 +41,14 @@ httpd_handle_t webserver_init(void) {
         httpd_register_uri_handler(server, &root_uri);
 
         ESP_LOGI(TAG, "Registered URI handler: GET /");
-        ESP_LOGI(TAG, "Open http://192.168.4.1 in your browser");
+
+        esp_netif_t *ap_netif = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
+        if (ap_netif != NULL) {
+            esp_netif_ip_info_t ip_info;
+            if (esp_netif_get_ip_info(ap_netif, &ip_info) == ESP_OK) {
+                ESP_LOGI(TAG, "Open http://" IPSTR " in your browser", IP2STR(&ip_info.ip));
+            }
+        }
     } else {
         ESP_LOGE(TAG, "Failed to start web server");
     }
