@@ -16,7 +16,8 @@ static esp_err_t root_handler(httpd_req_t *req) {
     esp_err_t ret = filesystem_read_file("/littlefs/www/index.html", html_buffer, sizeof(html_buffer), &bytes_read);
 
     if (ret != ESP_OK) {
-        const char *error_msg = "<html><body><h1>404 Not Found</h1><p>index.html not found on filesystem</p></body></html>";
+        const char *error_msg =
+            "<html><body><h1>404 Not Found</h1><p>index.html not found on filesystem</p></body></html>";
         httpd_resp_send_404(req);
         httpd_resp_send(req, error_msg, HTTPD_RESP_USE_STRLEN);
         return ESP_OK;
@@ -46,7 +47,9 @@ httpd_handle_t webserver_init(void) {
         if (ap_netif != NULL) {
             esp_netif_ip_info_t ip_info;
             if (esp_netif_get_ip_info(ap_netif, &ip_info) == ESP_OK) {
-                ESP_LOGI(TAG, "Open http://" IPSTR " in your browser", IP2STR(&ip_info.ip));
+                // clang-format off
+                ESP_LOGI(TAG, "Open http://"IPSTR" in your browser", IP2STR(&ip_info.ip));
+                // clang-format on
             }
         }
     } else {

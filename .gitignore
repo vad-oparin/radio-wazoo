@@ -1,6 +1,7 @@
 # Build artifacts
 build/
 build_*_*/
+clang-build/
 
 # ESP-IDF configuration
 sdkconfig
@@ -13,6 +14,7 @@ partitions.csv
 # Dependency management
 dependencies.lock
 managed_components/
+node_modules/
 
 # IDE - CLion/IntelliJ
 cmake-build-*/
