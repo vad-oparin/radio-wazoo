@@ -48,8 +48,8 @@ async function js() {
         entryPoints,
         bundle: true,
         minify: true,
-        format: 'iife',
-        target: 'es2015',
+        format: 'esm',
+        target: 'es2017',
         outfile: 'data/www/assets/js/main.min.js'
     });
 }
@@ -66,6 +66,13 @@ function images() {
         .pipe(gulp.dest(paths.images.dest));
 }
 
+function watch() {
+    gulp.watch(paths.scss.src, scss);
+    gulp.watch(paths.js.src, js);
+    gulp.watch(paths.html.src, html);
+    gulp.watch(paths.images.src, images);
+}
+
 const build = gulp.series(clean, gulp.parallel(scss, js, html, images));
 
 exports.clean = clean;
@@ -73,5 +80,6 @@ exports.scss = scss;
 exports.js = js;
 exports.html = html;
 exports.images = images;
+exports.watch = watch;
 exports.build = build;
 exports.default = build;

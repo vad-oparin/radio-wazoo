@@ -12,11 +12,12 @@
     "url": ""
   },
   "scripts": {
-    "build": "",
-    "dev": "",
-    "prod": ""
+    "build": "gulp",
+    "dev": "python -m http.server 8888 --directory src/www",
+    "prod": "python -m http.server 8888 --directory data/www"
   },
   "dependencies": {
+    "@alpinejs/persist": "^3.15.0",
     "@picocss/pico": "^2.1.1",
     "alpinejs": "^3.15.0"
   },
