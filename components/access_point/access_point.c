@@ -8,6 +8,7 @@
 #include "radio_wazoo_config.h"
 
 static const char *const TAG = "ACCESS_POINT";
+static bool netif_initialized = false;
 
 static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
     if (event_id == WIFI_EVENT_AP_STACONNECTED) {
@@ -24,9 +25,12 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
 }
 
 esp_err_t access_point(void) {
-    // Initialize network interface
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    // Initialize network interface (only once per application lifecycle)
+    if (!netif_initialized) {
+        ESP_ERROR_CHECK(esp_netif_init());
+        ESP_ERROR_CHECK(esp_event_loop_create_default());
+        netif_initialized = true;
+    }
 
     // Create default WiFi AP
     esp_netif_t *ap_netif = esp_netif_create_default_wifi_ap();
@@ -73,8 +77,8 @@ esp_err_t access_point(void) {
 
     ESP_LOGI(TAG, "WiFi AP started");
     ESP_LOGI(TAG, "SSID: %s", WIFI_AP_SSID);
-    ESP_LOGI(TAG, "Password: %s", WIFI_AP_PASSWORD);
-    ESP_LOGI(TAG, "IP Address: 192.168.4.1");
+    ESP_LOGI(TAG, "Password: %s", strlen(WIFI_AP_PASSWORD) > 0 ? "********" : "(open)");
+    ESP_LOGI(TAG, "IP Address: " IPSTR, IP2STR(&ip_info.ip));
 
     return ESP_OK;
 }
