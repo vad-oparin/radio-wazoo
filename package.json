@@ -1,0 +1,22 @@
+{
+  "name": "radio-wazoo",
+  "version": "0.0.0",
+  "description": "",
+  "author": {
+    "name": "Vadim Oparin",
+    "email": "vad.oparin@gmail.com"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "scripts": {
+    "build": "",
+    "dev": "",
+    "prod": ""
+  },
+  "dependencies": {
+    "alpinejs": "^3.15.0"
+  }
+}

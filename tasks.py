@@ -17,7 +17,7 @@ from colorama import init, Fore  # , Back, Style
 import subprocess
 
 # Assets build settings
-SRC_DIR = Path("src_www")
+SRC_DIR = Path("src/www")
 DEST_DIR = Path("data/www")
 
 # Firmware build/flash settings
@@ -85,7 +85,7 @@ Web Assets Build System
 This module processes web interface files for embedding into ESP32 firmware.
 
 PIPELINE:
-  src_www/              →  data/www/              →  data/              →  ESP32 filesystem
+  src/www/              →  data/www/              →  data/              →  ESP32 filesystem
   (source files)           (processed files)         (filesystem root)     (LittleFS partition)
 
 TASKS:
@@ -97,7 +97,7 @@ TASKS:
   6. build      - Execute all tasks in order (1-5)
 
 WORKFLOW:
-  Development:  Edit files in src_www/
+  Development:  Edit files in src/www/
   Processing:   Run 'invoke build'
   Filesystem:   data/ directory contains all files to be embedded (www/, configs/, etc.)
   Flashing:     Run 'invoke flash-filesystem' to create and flash LittleFS image
