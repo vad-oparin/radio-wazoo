@@ -129,11 +129,11 @@ The `utility.sh` script provides a streamlined workflow for building and flashin
 
 **Basic usage:**
 ```bash
-./utility.sh build              # Build firmware + flash filesystem (incremental)
-./utility.sh flash              # Flash firmware only
-./utility.sh flash-fs           # Flash filesystem only
-./utility.sh flash-fs --force   # Force flash filesystem (ignore cache)
+./utility.sh build              # Build firmware + flash all + reset + verify
 ./utility.sh verify             # Verify device boot status
+./utility.sh format             # Reformat C/C++ code with clang-format
+./utility.sh tidy               # Run clang-tidy linting
+./utility.sh help               # Show help message
 ```
 
 **Complete workflow:**
