@@ -78,10 +78,11 @@ The web interface files need to be compiled and minified before being flashed to
    - `npx gulp js` - Bundle JavaScript only
    - `npx gulp html` - Process HTML with path corrections
    - `npx gulp images` - Copy images only
+   - `npx gulp watch` - Auto-rebuild on file changes (development mode)
 
 **Build output:**
 - `main.min.css` - 69KB (PicoCSS framework compiled and minified)
-- `main.min.js` - 45KB (Alpine.js bundled and minified)
+- `main.min.js` - 46KB (Alpine.js + persist plugin bundled and minified)
 - `index.html` - HTML with corrected asset paths
 - Images copied to `assets/images/`
 
@@ -149,3 +150,17 @@ radio-wazoo/
 - `src/www/` - Edit web files here (HTML, SCSS, JS, images)
 - `data/www/` - Generated from `src/www/` via `npx gulp` (ready for ESP32)
 - `data/` - Root of device filesystem (entire directory is flashed)
+
+## Technologies
+
+**Frontend:**
+- **CSS**: PicoCSS 2.1.1 (semantic, class-less framework)
+- **JavaScript**: Alpine.js 3.15.0 (reactive framework)
+- **State Persistence**: @alpinejs/persist 3.15.0 (localStorage integration)
+- **Build**: Gulp 5.0.1, esbuild (ESM/ES2017), Sass
+
+**Backend:**
+- **Framework**: ESP-IDF v5.0+
+- **Target**: ESP32, ESP32-S2, ESP32-S3, ESP32-C3
+- **Server**: Custom HTTP server component
+- **Filesystem**: LittleFS (~133KB web assets)
