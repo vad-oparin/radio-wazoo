@@ -39,9 +39,9 @@ log_error() {
 }
 
 log_step() {
-  echo -e "\n${GREEN}===================================================${NC}"
+  echo -e "\n${GREEN}==================================================================${NC}"
   echo -e "${GREEN}  $1${NC}"
-  echo -e "${GREEN}===================================================${NC}\n"
+  echo -e "${GREEN}==================================================================${NC}\n"
 }
 
 function print_help() {
@@ -52,8 +52,10 @@ function print_help() {
   echo "Usage: ./utility.sh [command] [port]"
   echo ""
   echo "Commands:"
+  echo "  compile          - Build firmware only (no flashing)"
   echo "  build            - Build firmware, flash all, reset device, and verify boot"
   echo "  verify           - Verify device boot status (check WiFi AP)"
+  echo "  monitor          - Monitor serial output (60 seconds timeout)"
   echo "  format           - Reformat code in C/C++ files using clang-format"
   echo "  tidy             - Run clang-tidy linting on C/C++ files"
   echo "  help             - Show this help message"
@@ -67,6 +69,7 @@ function print_help() {
   echo "  ./utility.sh build"
   echo "  PORT=/dev/ttyUSB0 ./utility.sh build"
   echo "  ./utility.sh verify"
+  echo "  ./utility.sh monitor"
   echo ""
   echo "The 'build' command performs:"
   echo "  1. Firmware build (idf.py build)"
@@ -80,6 +83,7 @@ function print_help() {
 function reformat_code() {
   echo -e "${GREEN}=== 🔠 Reformatting C code... ===${NC}"
   find main -type f \( -name "*.c" -o -name "*.h" \) -exec clang-format -i --verbose {} +
+  find include -type f \( -name "*.c" -o -name "*.h" \) -exec clang-format -i --verbose {} +
   find components -type f \( -name "*.c" -o -name "*.h" \) -exec clang-format -i --verbose {} +
   echo -e "${GREEN}=== ✅ Reformat complete! ===${NC}"
 }
@@ -300,8 +304,37 @@ verify_boot() {
   fi
 }
 
+# Monitor serial output
+monitor_serial() {
+  log_step "=== Monitoring Serial Output ==="
+
+  FOUND=false
+
+  if [ -e "/dev/ttyACM0" ]; then
+    log_info "Monitoring /dev/ttyACM0 (60 seconds timeout, Ctrl+C to exit)..."
+    stty -F /dev/ttyACM0 115200 raw -echo && timeout 60 cat /dev/ttyACM0
+    FOUND=true
+  fi
+
+  if [ -e "/dev/ttyACM1" ]; then
+    log_info "Monitoring /dev/ttyACM1 (60 seconds timeout, Ctrl+C to exit)..."
+    stty -F /dev/ttyACM1 115200 raw -echo && timeout 60 cat /dev/ttyACM1
+    FOUND=true
+  fi
+
+  if [ "$FOUND" = false ]; then
+    log_error "/dev/ttyACM0 and /dev/ttyACM1 do not exist"
+    log_info "Available serial ports:"
+    ls -l /dev/ttyACM* /dev/ttyUSB* 2>/dev/null || log_warn "No serial devices found"
+    exit 1
+  fi
+}
+
 # Main script logic
 case "$1" in
+compile)
+  build_firmware
+  ;;
 format)
   reformat_code
   ;;
@@ -317,6 +350,9 @@ build)
   ;;
 verify)
   verify_boot
+  ;;
+monitor)
+  monitor_serial
   ;;
 help | --help | -h | "")
   print_help
